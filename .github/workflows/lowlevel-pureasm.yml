@@ -1,0 +1,31 @@
+name: lowlevel-pureasm
+
+on:
+  push:
+    paths:
+      - 'samples/lowlevel_pureasm/**'
+      - 'scripts/detect_platform_ids.sh'
+      - '.github/workflows/lowlevel-pureasm.yml'
+  pull_request:
+    paths:
+      - 'samples/lowlevel_pureasm/**'
+      - 'scripts/detect_platform_ids.sh'
+      - '.github/workflows/lowlevel-pureasm.yml'
+
+jobs:
+  validate-lowlevel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate include
+        run: |
+          cd samples/lowlevel_pureasm
+          ./detect_env.sh generated/detected.inc
+          test -f generated/detected.inc
+
+      - name: Assemble sample
+        run: |
+          gcc -c -x assembler-with-cpp samples/lowlevel_pureasm/core_engine_modules.S -o /tmp/core_engine_modules.o
+          test -s /tmp/core_engine_modules.o

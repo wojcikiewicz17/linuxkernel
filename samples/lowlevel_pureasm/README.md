@@ -19,7 +19,8 @@ Refatoração para execução em assembly puro, sem dependências externas, sem 
 - `C3 = 3` (bit do pino)
 
 ## Autoidentificação de ambiente
-- Script: `detect_env.sh`
+- Script local: `detect_env.sh`
+- Fonte de verdade: `scripts/detect_platform_ids.sh`
 - Saída: `generated/detected.inc`
 - IDs numéricos sem strings em runtime:
   - `D0`: arquitetura (`x86_64`, `x86`, `arm64`, `arm`, `riscv64`, `unknown`)
