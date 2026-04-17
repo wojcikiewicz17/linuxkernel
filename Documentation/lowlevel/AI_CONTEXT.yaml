@@ -1,0 +1,40 @@
+version: 1
+scope:
+  docs_root: Documentation/lowlevel
+  sample_root: samples/lowlevel_pureasm
+  detection_script: scripts/detect_platform_ids.sh
+purpose:
+  - "Permitir que IA/humano entenda rapidamente o contrato de IDs low-level"
+  - "Evitar divergência entre docs, script e sample"
+contracts:
+  output_file: generated/detected.inc
+  symbols:
+    D0: architecture_id
+    D1: os_id
+    D2: hardware_id
+  format: ".equ <SYMBOL>, <NUMERIC_ID>"
+id_map:
+  architecture:
+    "0": unknown
+    "1": x86_64
+    "2": x86
+    "3": arm64
+    "4": arm
+    "5": riscv64
+  os:
+    "0": unknown
+    "1": Linux
+    "2": Darwin
+    "3": FreeBSD
+  hardware:
+    "0": unknown
+    "1": raspberry
+    "2": jetson
+    "3": generic-dt
+    "10": virtual
+    "11": generic-dmi
+verification:
+  local_commands:
+    - "cd samples/lowlevel_pureasm && ./detect_env.sh generated/detected.inc"
+    - "gcc -c -x assembler-with-cpp samples/lowlevel_pureasm/core_engine_modules.S -o /tmp/core_engine_modules.o"
+  ci_workflow: ".github/workflows/lowlevel-pureasm.yml"
