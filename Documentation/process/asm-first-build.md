@@ -8,23 +8,60 @@ mas aplica o limite seguro possível para:
 - manter build reprodutível;
 - não enfraquecer a trilha oficial de release.
 
-## O que este perfil faz
+## O que o helper faz
 
 O helper `scripts/asm-first-build.sh`:
 
 1. seleciona uma `defconfig` explícita da arquitetura alvo;
-2. desliga módulos (`CONFIG_MODULES=n`) para reduzir superfície dinâmica;
-3. desliga BPF JIT (`CONFIG_BPF_JIT=n`) para reduzir caminho JIT/runtime;
-4. desliga tracing/uprobes (`CONFIG_FTRACE=n`, `CONFIG_UPROBES=n`) para reduzir camadas de instrumentação;
-5. mantém a build oficial do kernel (sem hacks de unsigned/release bypass);
-6. executa `olddefconfig` para consistência e build com `vmlinux`.
+2. gera um fragmento Kconfig ASM-first mínimo;
+3. aplica o fragmento com `merge_config.sh` preservando pipeline oficial;
+4. roda `olddefconfig` para coerência final;
+5. em `MODE=build`, gera `vmlinux`;
+6. gera `build.log` e `artifacts.txt` para integração de CI/upload.
+
+Fragmento aplicado:
+
+- `CONFIG_MODULES=n`
+- `CONFIG_BPF_JIT=n`
+- `CONFIG_FTRACE=n`
+- `CONFIG_UPROBES=n`
+
+## Entradas e saídas
+
+Variáveis suportadas:
+
+- `ARCH` (default: `x86_64`)
+- `JOBS` (default: `nproc`)
+- `OUT_DIR` (default: `out/asm-first`)
+- `DRY_RUN` (`0|1`)
+- `MODE` (`build|prepare`)
+- `KEEP_FRAGMENT` (`0|1`)
+
+Artefatos produzidos em `OUT_DIR`:
+
+- `.config`
+- `build.log`
+- `artifacts.txt`
+- `vmlinux` e `System.map` (quando `MODE=build`)
 
 ## Uso
 
-### x86_64 (padrão)
+### Build completa x86_64
 
 ```bash
 scripts/asm-first-build.sh
+```
+
+### Somente preparação de config
+
+```bash
+MODE=prepare scripts/asm-first-build.sh
+```
+
+### Dry-run
+
+```bash
+DRY_RUN=1 scripts/asm-first-build.sh
 ```
 
 ### arm64
@@ -33,11 +70,13 @@ scripts/asm-first-build.sh
 ARCH=arm64 scripts/asm-first-build.sh
 ```
 
-### Dry-run (sem compilar)
+## CI recomendado
 
-```bash
-DRY_RUN=1 scripts/asm-first-build.sh
-```
+Use `.github/workflows/asm-first-kernel.yml` para:
+
+- instalar dependências de build (`flex`, `bison`, `bc`, `libelf-dev`, `libssl-dev`);
+- executar build ASM-first em pipeline limpa;
+- publicar `build.log`, `.config`, `vmlinux` e `System.map` como artifact.
 
 ## Escopo e limite
 
