@@ -70,6 +70,7 @@ beyond).
    researcher-guidelines
    generated-content
    coding-assistants
+   ai-governance
    conclave
 
 Dealing with bugs

@@ -1,0 +1,8 @@
+<subsystem>: <short summary>
+
+<detailed description of what changed and why>
+
+<optional test notes>
+
+Signed-off-by: Your Name <you@example.com>
+Assisted-by: Codex (GPT-5.3-Codex, OpenAI)
