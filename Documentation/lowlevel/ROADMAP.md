@@ -12,8 +12,8 @@ Consolidar uma trilha low-level reproduzível (build local + CI) com autodetecç
 ## Próximas entregas
 1. [ ] Adicionar teste de regressão do mapeamento em shell (entrada mock -> saída esperada).
 2. [ ] Publicar tabela de compatibilidade por arquitetura (x86_64, arm64, riscv64).
-3. [ ] Adicionar validação de estilo para docs low-level no workflow.
-4. [ ] Incluir versão do contrato de IDs (ex: `PLATFORM_ID_SCHEMA=1`).
+3. [x] Adicionar validação de estilo para docs low-level no workflow.
+4. [x] Incluir versão do contrato de IDs (`PLATFORM_ID_SCHEMA=1`).
 
 ## Critério de pronto
 - Include `generated/detected.inc` reproduzível em CI.

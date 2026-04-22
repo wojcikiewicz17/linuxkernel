@@ -3,13 +3,17 @@ name: lowlevel-pureasm
 on:
   push:
     paths:
+      - 'Documentation/lowlevel/**'
       - 'samples/lowlevel_pureasm/**'
       - 'scripts/detect_platform_ids.sh'
+      - 'scripts/validate_lowlevel_docs.sh'
       - '.github/workflows/lowlevel-pureasm.yml'
   pull_request:
     paths:
+      - 'Documentation/lowlevel/**'
       - 'samples/lowlevel_pureasm/**'
       - 'scripts/detect_platform_ids.sh'
+      - 'scripts/validate_lowlevel_docs.sh'
       - '.github/workflows/lowlevel-pureasm.yml'
 
 jobs:
@@ -19,11 +23,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate low-level docs
+        run: scripts/validate_lowlevel_docs.sh
+
       - name: Generate include
         run: |
           cd samples/lowlevel_pureasm
           ./detect_env.sh generated/detected.inc
           test -f generated/detected.inc
+          rg '^\s*\.equ PLATFORM_ID_SCHEMA, 1$' generated/detected.inc
 
       - name: Assemble sample
         run: |

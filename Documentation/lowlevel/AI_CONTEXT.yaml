@@ -9,10 +9,12 @@ purpose:
 contracts:
   output_file: generated/detected.inc
   symbols:
+    PLATFORM_ID_SCHEMA: schema_version
     D0: architecture_id
     D1: os_id
     D2: hardware_id
   format: ".equ <SYMBOL>, <NUMERIC_ID>"
+  schema_version: 1
 id_map:
   architecture:
     "0": unknown

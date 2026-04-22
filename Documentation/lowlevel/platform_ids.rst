@@ -13,6 +13,7 @@ Saída
 
 O script gera um include assembler com constantes numéricas:
 
+- ``PLATFORM_ID_SCHEMA``: versão do contrato de IDs
 - ``D0``: arquitetura
 - ``D1``: sistema operacional
 - ``D2``: hardware
@@ -50,6 +51,11 @@ Hardware (D2):
 - ``10`` = virtual
 - ``11`` = generic-dmi
 - ``0`` = desconhecido
+
+Versão do contrato
+------------------
+
+- ``PLATFORM_ID_SCHEMA = 1``
 
 Roadmap
 -------

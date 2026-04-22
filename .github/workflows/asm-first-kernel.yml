@@ -1,0 +1,52 @@
+name: asm-first-kernel
+
+on:
+  push:
+    paths:
+      - 'scripts/asm-first-build.sh'
+      - 'Documentation/process/asm-first-build.md'
+      - '.github/workflows/asm-first-kernel.yml'
+  pull_request:
+    paths:
+      - 'scripts/asm-first-build.sh'
+      - 'Documentation/process/asm-first-build.md'
+      - '.github/workflows/asm-first-kernel.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'asm-first mode (prepare|build)'
+        required: false
+        default: 'prepare'
+
+jobs:
+  asm-first:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc bison build-essential flex libelf-dev libssl-dev
+
+      - name: Run ASM-first profile
+        env:
+          MODE: ${{ github.event.inputs.mode || 'prepare' }}
+        run: |
+          scripts/asm-first-build.sh
+          test -s out/asm-first/build.log
+          test -s out/asm-first/artifacts.txt
+
+      - name: Upload asm-first artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: asm-first-${{ github.run_id }}
+          if-no-files-found: error
+          path: |
+            out/asm-first/build.log
+            out/asm-first/artifacts.txt
+            out/asm-first/.config
+            out/asm-first/vmlinux
+            out/asm-first/System.map

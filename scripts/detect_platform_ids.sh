@@ -43,8 +43,11 @@ elif [ -r /sys/class/dmi/id/product_name ]; then
   fi
 fi
 
+schema_id=1
+
 cat >"$out_file" <<INC
 /* auto-generated: do not edit */
+    .equ PLATFORM_ID_SCHEMA, ${schema_id}
     .equ D0, ${arch_id}
     .equ D1, ${os_id}
     .equ D2, ${hw_id}
