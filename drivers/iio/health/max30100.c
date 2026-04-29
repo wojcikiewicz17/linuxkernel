@@ -228,15 +228,18 @@ static inline int max30100_fifo_count(struct max30100_data *data)
 
 static int max30100_read_measurement(struct max30100_data *data)
 {
+	u8 raw[MAX30100_REG_FIFO_DATA_ENTRY_LEN];
 	int ret;
 
-	ret = i2c_smbus_read_i2c_block_data(data->client,
-					    MAX30100_REG_FIFO_DATA,
-					    MAX30100_REG_FIFO_DATA_ENTRY_LEN,
-					    (u8 *) &data->buffer);
-	max30100_arch_barrier();
+	ret = regmap_bulk_read(data->regmap, MAX30100_REG_FIFO_DATA,
+			       raw, sizeof(raw));
+	if (ret)
+		return ret;
 
-	return (ret == MAX30100_REG_FIFO_DATA_ENTRY_LEN) ? 0 : ret;
+	data->buffer[0] = cpu_to_be16((raw[0] << 8) | raw[1]);
+	data->buffer[1] = cpu_to_be16((raw[2] << 8) | raw[3]);
+
+	return 0;
 }
 
 static irqreturn_t max30100_interrupt_handler(int irq, void *private)
