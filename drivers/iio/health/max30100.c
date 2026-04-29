@@ -79,21 +79,6 @@ struct max30100_data {
 	__be16 buffer[2]; /* 2 16-bit channels */
 };
 
-static __always_inline void max30100_arch_barrier(void)
-{
-#if defined(CONFIG_ARM64)
-	asm volatile("dmb ish" : : : "memory");
-#elif defined(CONFIG_ARM)
-	asm volatile("dmb ish" : : : "memory");
-#elif defined(CONFIG_X86)
-	asm volatile("mfence" : : : "memory");
-#elif defined(CONFIG_RISCV)
-	asm volatile("fence rw, rw" : : : "memory");
-#else
-	barrier();
-#endif
-}
-
 static bool max30100_is_volatile_reg(struct device *dev, unsigned int reg)
 {
 	switch (reg) {
@@ -168,7 +153,7 @@ static const struct iio_chan_spec max30100_channels[] = {
 
 static int max30100_set_powermode(struct max30100_data *data, bool state)
 {
-	max30100_arch_barrier();
+	mb();
 	return regmap_update_bits(data->regmap, MAX30100_REG_MODE_CONFIG,
 				  MAX30100_REG_MODE_CONFIG_PWR,
 				  state ? 0 : MAX30100_REG_MODE_CONFIG_PWR);
@@ -181,12 +166,12 @@ static int max30100_clear_fifo(struct max30100_data *data)
 	ret = regmap_write(data->regmap, MAX30100_REG_FIFO_WR_PTR, 0);
 	if (ret)
 		return ret;
-	max30100_arch_barrier();
+	mb();
 
 	ret = regmap_write(data->regmap, MAX30100_REG_FIFO_OVR_CTR, 0);
 	if (ret)
 		return ret;
-	max30100_arch_barrier();
+	mb();
 
 	return regmap_write(data->regmap, MAX30100_REG_FIFO_RD_PTR, 0);
 }
@@ -223,7 +208,7 @@ static inline int max30100_fifo_count(struct max30100_data *data)
 	ret = regmap_read(data->regmap, MAX30100_REG_INT_STATUS, &val);
 	if (ret)
 		return ret;
-	max30100_arch_barrier();
+	mb();
 
 	/* FIFO is almost full */
 	if (val & MAX30100_REG_INT_STATUS_FIFO_RDY)
@@ -240,7 +225,7 @@ static int max30100_read_measurement(struct max30100_data *data)
 					    MAX30100_REG_FIFO_DATA,
 					    MAX30100_REG_FIFO_DATA_ENTRY_LEN,
 					    (u8 *) &data->buffer);
-	max30100_arch_barrier();
+	mb();
 
 	return (ret == MAX30100_REG_FIFO_DATA_ENTRY_LEN) ? 0 : ret;
 }
