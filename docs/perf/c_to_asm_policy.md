@@ -1,115 +1,102 @@
-# Política de Migração C → ASM (ARM32/ARM64)
+# Política de Migração de C para Assembly (ARM32/ARM64)
 
 ## Objetivo
-Estabelecer critérios objetivos, contrato técnico e fluxo de validação para migração de rotinas críticas de C para Assembly, preservando segurança, portabilidade e regressão zero.
 
-## 1) Critérios objetivos para migrar de C para ASM
-A migração só é permitida quando **todos** os critérios abaixo estiverem documentados no PR:
+Estabelecer critérios objetivos e um fluxo seguro para adoção de implementações em assembly sem perda de corretude, portabilidade e mantenabilidade.
 
-### 1.1 Custo por ciclo (cycles per call)
-- Medir baseline em C com benchmark dedicado e reprodutível.
-- Medir versão ASM nas mesmas condições (CPU governor fixo quando possível, afinidade de CPU, warmup e amostragem).
-- Exigir ganho mínimo de performance:
-  - **≥ 12% de redução de ciclos/call** em média, ou
-  - **≥ 8% em p95** quando a média for sensível a outliers.
-- Reportar também variação (desvio padrão / intervalo de confiança).
+## 1) Critérios objetivos para decidir migração C -> ASM
 
-### 1.2 Frequência de chamada
-- Função candidata deve ter frequência relevante no perfil real:
-  - **≥ 1% do tempo total de CPU** do processo **ou**
-  - **≥ 100k chamadas/s** em cenário alvo.
-- A origem da medição deve ser profiling de carga representativa (produção controlada, staging ou replay confiável).
+A migração só é permitida quando **todos** os critérios abaixo forem atendidos e documentados:
 
-### 1.3 Impacto de latência (p95/p99)
-- A migração deve demonstrar impacto mensurável no caminho de negócio:
-  - Redução de latência **p95 ≥ 3%** ou **p99 ≥ 2%**, quando a função participa da trilha crítica.
-- Se não houver impacto em p95/p99, a mudança deve ser tratada como opcional e não bloqueia manutenção em C.
+1. **Custo por ciclo (cycles/op)**
+   - Medir baseline em `foo.c` e candidato em `foo_asm.S`.
+   - Exigir ganho mínimo de performance estatisticamente estável (ex.: mediana e intervalo de confiança) no hardware-alvo.
+   - Registrar variação por microarquitetura (ex.: Cortex-A53, A55, A76).
 
-### 1.4 Estabilidade de ABI
-- Não pode haver quebra de ABI pública/estável.
-- Assinatura C (tipos, alinhamento, tamanho de structs expostas) deve permanecer idêntica.
-- Qualquer dependência de layout deve ser explicitamente validada por testes de tamanho/alinhamento.
+2. **Frequência de chamada**
+   - O trecho deve estar no caminho quente (hot path), com frequência alta o suficiente para impactar throughput/latência global.
+   - Priorizar funções no topo de perfilagem (perf/simpleperf) sob carga real.
 
-## 2) Implementação dupla obrigatória (referência + otimizada)
-Toda função migrada deve manter duas implementações:
+3. **Impacto p95/p99**
+   - A aprovação depende de melhoria em cauda de latência (p95/p99), não apenas média.
+   - Rejeitar mudanças com regressão de p95/p99, mesmo com ganho de média.
 
-- `foo.c`: implementação de referência (fonte da verdade funcional).
-- `foo_asm.S`: implementação otimizada (arquitetura específica).
+4. **Estabilidade de ABI**
+   - A assinatura pública e o contrato binário devem permanecer estáveis.
+   - Mudanças de layout, alinhamento ou convenção que afetem consumidores binários são proibidas sem plano de versionamento.
 
-A seleção deve ser feita por compilação condicional:
+## 2) Implementação dupla obrigatória
+
+Toda rotina otimizada deve manter:
+
+- `foo.c`: implementação de referência (fonte de verdade funcional).
+- `foo_asm.S`: implementação otimizada.
+
+Seleção por arquitetura deve ser explícita no ponto de despacho:
 
 ```c
 #if defined(__aarch64__) || defined(__arm__)
-    // usar versão ASM
+  return foo_asm(...);
 #else
-    // usar fallback C
+  return foo_c(...);
 #endif
 ```
 
 Regras:
-- Em ARM32/ARM64, versão ASM pode ser habilitada por padrão após critérios de maturidade.
-- Em qualquer arquitetura não suportada, fallback C é obrigatório.
-- A versão C nunca deve ser removida enquanto não houver maturidade comprovada.
+- Em ARM32/ARM64, a versão assembly pode ser habilitada conforme critérios desta política.
+- Em qualquer outra arquitetura, fallback C é obrigatório.
+- O fallback C **não pode** ser removido enquanto não houver maturidade comprovada.
 
 ## 3) Contrato de chamada padronizado (AAPCS)
-Toda rotina ASM deve aderir estritamente às convenções AAPCS/AAPCS64:
 
-- Preservação de registradores callee-saved conforme ABI.
-- Preservação de `LR` quando aplicável.
-- Alinhamento de stack:
-  - ARM32: alinhamento conforme AAPCS (8-byte no ponto de chamada).
-  - AArch64: stack 16-byte alinhada em fronteiras de chamada.
-- Retorno de valores e passagem de argumentos conforme ABI da arquitetura.
-- Sem uso de estado global implícito ou side effects não declarados.
+Toda rotina assembly deve seguir o ABI oficial da plataforma:
 
-Checklist mínimo no código ASM:
-- Prólogo/epílogo corretos.
-- Clobbers explícitos quando houver inline assembly.
-- Comentário com mapeamento de registradores de entrada/saída.
+- **AAPCS32** para `__arm__` e **AAPCS64** para `__aarch64__`.
+- Preservar registradores callee-saved conforme ABI.
+- Manter alinhamento de stack conforme requisito da ABI em qualquer ponto de chamada.
+- Não clobber registradores/sinalizadores fora do permitido.
+- Declarar claramente pré-condições e pós-condições (incluindo alinhamento de ponteiros e aliasing).
 
-## 4) Teste de equivalência funcional obrigatório
-Toda migração C→ASM deve incluir suíte determinística comparando C vs ASM.
+Checklist mínimo por rotina:
+- Lista de registradores usados/preservados.
+- Garantia de prólogo/epílogo válidos.
+- Prova de equivalência funcional com implementação C.
+- Cobertura de casos de borda.
 
-Cobertura mínima:
-- Vetores de entrada determinísticos (seed fixa).
-- Casos de borda:
-  - overflow/underflow aritmético esperado.
-  - alinhamento e desalinhamento de buffers.
-  - endianness (onde aplicável).
-  - tamanhos mínimos, máximos e zero-length.
-- Comparação bit a bit da saída (ou tolerância formalmente definida para ponto flutuante).
+## 4) Teste de equivalência funcional (obrigatório)
 
-Critérios de aprovação:
-- 100% de equivalência nos casos válidos.
-- Comportamento de erro idêntico (códigos de retorno, sinalização).
-- Regressão zero em testes existentes do módulo.
+Cada par `foo.c`/`foo_asm.S` deve possuir suíte de equivalência com:
 
-## 5) Proibição de substituição total sem fallback C
-É **proibido** substituir totalmente a implementação C por ASM sem:
+1. **Vetores determinísticos**
+   - Entradas fixas versionadas no repositório.
+   - Reprodutibilidade entre execuções e CI.
 
-1. Benchmark longitudinal comprovando ganho estável.
-2. Regressão zero por janela mínima de validação contínua.
-3. Evidência de maturidade em múltiplos dispositivos/SoCs ARM32 e ARM64.
-4. Aprovação explícita de mantenedores de performance + ABI.
+2. **Casos de borda obrigatórios**
+   - Overflow/underflow aritmético.
+   - Diferentes alinhamentos de memória (incluindo desalinhado quando permitido).
+   - Endianness (validação explícita para little-endian e comportamento esperado para demais cenários suportados).
+   - Tamanhos extremos (0, 1, N máximo suportado, limites de bloco).
 
-Até cumprir todos os itens acima, fallback C deve permanecer no código e no build.
+3. **Oráculo de referência**
+   - `foo.c` é o oráculo primário.
+   - Resultado de `foo_asm.S` deve ser bit-a-bit equivalente (ou dentro de tolerância documentada para ponto flutuante).
 
-## 6) Maturidade e rollout
-Estados recomendados:
+## 5) Proibição de substituição total sem maturidade
 
-1. **Experimental**: ASM desligado por padrão, validado só em CI/lab.
-2. **Canary**: habilitado em fração controlada, monitorando erro e latência.
-3. **Default ARM**: habilitado por padrão em `__arm__`/`__aarch64__`, com fallback C preservado.
-4. **Mature**: documentação de estabilidade + histórico de regressão zero.
+É proibido substituir totalmente C por ASM sem:
 
-Rollback:
-- Deve ser possível desabilitar ASM por flag de build sem alteração funcional externa.
+- Benchmark representativo mostrando ganho consistente em cenários reais.
+- Regressão funcional zero na suíte determinística.
+- Regressão zero em p95/p99 nas cargas-alvo.
+- Janela mínima de estabilidade em CI/release (sem flakes atribuíveis ao caminho ASM).
 
-## 7) Evidências mínimas por PR
-Cada PR que introduz ou altera ASM deve anexar:
-- relatório de benchmark (média, p95, p99, variância).
-- resultados de equivalência C vs ASM.
-- confirmação de conformidade ABI/AAPCS.
-- plano de rollback.
+Até cumprir os critérios acima, o caminho C deve permanecer ativo como fallback e referência.
 
-Sem estas evidências, PR não deve ser aprovado.
+## 6) Requisitos de CI e release
+
+- Executar testes de equivalência em ARM32 e ARM64 sempre que `*.S`, despacho por `#if`, ou contrato ABI forem alterados.
+- Publicar artefatos de benchmark e relatório p95/p99 em cada mudança relevante.
+- Bloquear merge se houver:
+  - quebra de ABI,
+  - regressão de corretude,
+  - regressão de p95/p99 acima do orçamento definido.
