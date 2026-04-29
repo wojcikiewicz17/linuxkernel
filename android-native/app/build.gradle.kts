@@ -22,7 +22,13 @@ android {
         }
 
         ndk {
-            abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+            val ciAbi = (project.findProperty("ciAbi") as String?)?.trim()
+            if (!ciAbi.isNullOrEmpty()) {
+                abiFilters.clear()
+                abiFilters += ciAbi
+            } else {
+                abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+            }
         }
     }
 

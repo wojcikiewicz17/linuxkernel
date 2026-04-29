@@ -46,16 +46,18 @@ Sem essas variáveis, `release` é gerado unsigned (para validação interna).
 
 ## CI / GitHub Actions
 
-O workflow em `.github/workflows/android-native.yml` executa:
+O workflow em `.github/workflows/android-native.yml` executa em jobs separados:
 
-1. `assembleDebug`
-2. `assembleRelease` unsigned
-3. `assembleRelease` assinado (se secrets presentes)
-4. Upload dos APKs como artifacts
+1. `build-debug` (matriz ABI: `armeabi-v7a` e `arm64-v8a`)
+2. `build-release-unsigned` (trilha interna de validação, matriz ABI)
+3. `build-release-signed` (somente trilha oficial e com assinatura obrigatória)
+4. Upload explícito de APKs versionados por commit/tag via `actions/upload-artifact`
 
 Secrets esperados para assinatura no CI:
 
-- `ANDROID_KEYSTORE_BASE64`
-- `ANDROID_KEYSTORE_PASSWORD`
-- `ANDROID_KEY_ALIAS`
-- `ANDROID_KEY_PASSWORD`
+- `KEYSTORE_BASE64`
+- `KEY_ALIAS`
+- `KEY_PASSWORD`
+- `STORE_PASSWORD`
+
+Se a assinatura falhar, o job `build-release-signed` falha e bloqueia a promoção da release oficial.
