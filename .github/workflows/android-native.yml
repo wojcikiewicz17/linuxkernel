@@ -2,17 +2,18 @@ name: android-native-build
 
 on:
   push:
+    branches:
+      - '**'
+    tags:
+      - 'v*'
     paths:
       - 'android-native/**'
       - '.github/workflows/android-native.yml'
-    tags:
-      - 'v*'
   pull_request:
     paths:
       - 'android-native/**'
       - '.github/workflows/android-native.yml'
   workflow_dispatch:
-
 permissions:
   contents: read
 
@@ -20,7 +21,7 @@ env:
   JAVA_VERSION: '17'
   ANDROID_NDK_VERSION: '26.3.11579264'
   ANDROID_CMAKE_VERSION: '3.22.1'
-  ARTIFACT_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
+  ARTIFACT_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || format('sha-{0}', github.sha) }}
 
 jobs:
   build-debug:
@@ -237,6 +238,14 @@ jobs:
           mkdir -p dist/release-signed/${{ matrix.abi }}
           cp app/build/outputs/apk/release/*.apk dist/release-signed/${{ matrix.abi }}/
           rm -f dist/release-signed/${{ matrix.abi }}/*-unsigned.apk
+
+      - name: Verify signed APKs (${{ matrix.abi }})
+        run: |
+          APKSIGNER="$ANDROID_HOME/build-tools/34.0.0/apksigner"
+          for apk in dist/release-signed/${{ matrix.abi }}/*.apk; do
+            [ -f "$apk" ] || continue
+            "$APKSIGNER" verify --verbose "$apk"
+          done
 
       - name: Upload release signed APK artifact (${{ matrix.abi }})
         uses: actions/upload-artifact@v4
