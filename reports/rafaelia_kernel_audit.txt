@@ -1,0 +1,146 @@
+RAFAELIA KERNEL AUDIT
+Generated: 2026-04-30T02:26:30Z
+Branch: work
+Remote default: N/A
+
+== git diff --stat ==
+
+== commits próprios (últimos 100) ==
+6119aa1182 Merge pull request #17 from wojcikiewicz17/codex/create-android-ci-workflow-with-jobs
+95d9461a4c ci: harden android native workflow for signed release gating
+acd62ac1cd Merge pull request #16 from wojcikiewicz17/codex/configure-github-actions-for-android-builds
+77145f15e4 ci: harden android native workflow release signing
+d38c1faeab Merge pull request #15 from wojcikiewicz17/codex/create-performance-documentation-and-implementation-standard
+c5f805b407 docs: define C-to-ASM migration policy for ARM ABIs
+f7d6511b3c Merge pull request #13 from wojcikiewicz17/codex/create-performance-policy-document
+55d2d81d08 Merge pull request #14 from wojcikiewicz17/codex/create-github-actions-workflow-for-android-builds
+1113852a69 ci(android): split native workflow into debug/unsigned/signed release jobs
+b9e437625f docs: add C-to-ASM migration policy for ARM
+e35506321b Merge pull request #12 from wojcikiewicz17/codex/set-up-android-native-project-structure
+15f184362a Add isolated android-native Gradle/NDK build and CI workflow
+e45b7f1cce Merge pull request #11 from wojcikiewicz17/codex/refactor-c-code-to-assembly-88rrcu
+7f880d3216 Merge branch 'master' into codex/refactor-c-code-to-assembly-88rrcu
+490e5acfcd iio: max30100: switch FIFO reads to regmap bulk API
+a028d1d33b iio: max30100: replace custom asm fences with kernel mb()
+e9f1ee4682 iio: max30100: use arch-specific asm barriers
+dd20f4cdb2 Merge pull request #10 from wojcikiewicz17/codex/refactor-c-code-to-assembly
+7a3ec5581e iio: max30100: add inline asm memory barriers for critical register access
+aa7d9230c7 Merge pull request #9 from wojcikiewicz17/codex/integrate-ai-policy-and-attribution-system
+00967e04d6 docs: add AI governance attribution policy and hook
+bfc5c08a5e Merge pull request #8 from wojcikiewicz17/codex/update-vectras-vm-android-and-dependencies
+e24e7fc95d Align low-level contract with CI workflows and artifact publishing
+b7e7d202d9 Merge pull request #7 from wojcikiewicz17/codex/refactor-for-pure-asm-implementation-pg01pf
+e2928650c0 Merge branch 'master' into codex/refactor-for-pure-asm-implementation-pg01pf
+d4a646cd76 build: refactor asm-first helper for reproducible outputs
+141841f93a Merge pull request #6 from wojcikiewicz17/codex/refactor-for-pure-asm-implementation
+50966ad308 build: add asm-first kernel build helper and guide
+ddaaa7cf67 Merge pull request #1 from wojcikiewicz17/master
+248ce27bfe Merge pull request #5 from wojcikiewicz17/codex/refactor-to-pure-low-level-assembler-kzzi7v
+c8497b3270 Merge branch 'master' into codex/refactor-to-pure-low-level-assembler-kzzi7v
+656735d43f docs/lowlevel: add roadmap and AI-structured context areas
+a0962cbe59 Merge pull request #4 from wojcikiewicz17/codex/refactor-to-pure-low-level-assembler-aj9si9
+76699e0f30 Merge branch 'master' into codex/refactor-to-pure-low-level-assembler-aj9si9
+81e78fc72f scripts/docs/ci: centralize platform-id detection and validate sample
+56b3171253 Merge pull request #3 from wojcikiewicz17/codex/refactor-to-pure-low-level-assembler-v76726
+d46dbf05d8 Merge branch 'master' into codex/refactor-to-pure-low-level-assembler-v76726
+3ab752af9c samples/lowlevel_pureasm: add auto-detection for arch/os/hardware
+f0da341322 Merge pull request #2 from wojcikiewicz17/codex/refactor-to-pure-low-level-assembler-i6ljki
+e30a65a2a1 Merge branch 'master' into codex/refactor-to-pure-low-level-assembler-i6ljki
+74ad4df482 samples/lowlevel_pureasm: flatten symbols and add local build wiring
+fb71d030d1 Merge pull request #1 from wojcikiewicz17/codex/refactor-to-pure-low-level-assembler
+77c7ff653c samples: add isolated pure-assembly low-level core/engine skeleton
+f82b61de0f Merge tag 'locking_futex_for_v7.1_rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+334fbe734e Merge tag 'mm-stable-2026-04-13-21-45' of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+5bdb4078e1 Merge tag 'sched_ext-for-7.1' of git://git.kernel.org/pub/scm/linux/kernel/git/tj/sched_ext
+7de6b4a246 Merge tag 'wq-for-7.1' of git://git.kernel.org/pub/scm/linux/kernel/git/tj/wq
+b71f0be2d2 Merge tag 'cgroup-for-7.1' of git://git.kernel.org/pub/scm/linux/kernel/git/tj/cgroup
+05cef13fa8 Merge tag 'slab-for-7.1' of git://git.kernel.org/pub/scm/linux/kernel/git/vbabka/slab
+a8e7ef3cec Merge tag 'sound-7.1-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tiwai/sound
+4a57e0913e Merge tag 'drm-next-2026-04-15' of https://gitlab.freedesktop.org/drm/kernel
+afac4c66d1 Merge tag 'fbdev-for-7.1-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/deller/linux-fbdev
+00c6649baf Merge tag 'media/v7.1-1' of git://git.kernel.org/pub/scm/linux/kernel/git/mchehab/linux-media
+1f5ffc6721 Fix mismerge of the arm64 / timer-core interrupt handling changes
+5c0f43e853 Merge tag 'kernel-7.1-rc1.misc' of git://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs
+7c8a4671dc Merge tag 'vfs-7.1-rc1.mount.v2' of git://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs
+91a4855d6c Merge tag 'net-next-7.1' of git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next
+f5ad410100 Merge tag 'bpf-next-7.1' of git://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next
+e997ac58ad Merge tag 'linux_kselftest-next-7.1-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest
+6198c86a97 Merge tag 'linux_kselftest-kunit-7.1-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest
+88b29f3f57 Merge tag 'modules-7.1-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/modules/linux
+ee60c510fb Merge tag 'nolibc-20260412-for-7.1-1' of git://git.kernel.org/pub/scm/linux/kernel/git/nolibc/linux-nolibc
+3203a08c12 Merge tag 'powerpc-7.1-1' of git://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux
+e6b162a63f Merge tag 'm68knommu-for-v7.1' of git://git.kernel.org/pub/scm/linux/kernel/git/gerg/m68knommu
+c43267e679 Merge tag 'arm64-upstream' of git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux
+508fed6795 Merge tag 'ras_core_for_v7.1_rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+1834703b84 Merge tag 'edac_updates_for_v7.1_rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/ras/ras
+60b8d4d492 Merge tag 'x86_sev_for_v7.1_rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+970216e023 Merge tag 'x86_misc_for_v7.1_rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+cd4cdc53cc Merge tag 'x86_microcode_for_v7.1_rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+e9635f2a73 Merge tag 'x86_fred_for_v7.1_rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+fabd5a8d24 Merge tag 'x86_cache_for_v7.1_rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+883af1f8e8 Merge tag 'x86_tdx_for_7.1-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+51efd08647 Merge tag 'x86_mm_for_7.1-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+9f2bb6c7b3 Merge tag 'x86_cpu_for_7.1-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+49b30f3e9c Merge tag 'x86-vdso-2026-04-13' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+0972ba5605 Merge tag 'x86-platform-2026-04-13' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+ac633ba77c Merge tag 'x86-cleanups-2026-04-13' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+2ee08a8963 Merge tag 'x86-asm-2026-04-13' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+1c3b68f0d5 Merge tag 'sched-core-2026-04-13' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+33c66eb5e9 Merge tag 'perf-core-2026-04-13' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+4b2bdc2221 Merge tag 'objtool-core-2026-04-13' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+7393febcb1 Merge tag 'locking-core-2026-04-13' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+35c2c39832 Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net
+6bb6bafa88 net: pse-pd: fix kernel-doc function name for pse_control_find_by_id()
+18cd10d2af Merge branch 'wireguard-fixes-for-7-1-rc1'
+60a25ef8da wireguard: device: use exit_rtnl callback instead of manual rtnl_lock in pre_exit
+f364db381c wireguard: allowedips: remove redundant space
+121f416756 tools: ynl: add sample for wireguard
+e5549aecdd wireguard: allowedips: Use kfree_rcu() instead of call_rcu()
+e80d033851 Merge tag 'smp-core-2026-04-12' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+f21f7b5162 Merge tag 'timers-vdso-2026-04-12' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+c1fe867b5b Merge tag 'timers-core-2026-04-12' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+1d5e40351e Merge tag 'irq-msi-2026-04-12' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+c0ecb2a9ee Merge tag 'irq-drivers-2026-04-12' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+db23954eea Merge tag 'irq-core-2026-04-12' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+2ad332b0e2 Merge tag 'core-debugobjects-2026-04-12' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+15a1bccddc Merge tag 'core-entry-2026-04-12' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip
+5d0d362330 Merge tag 'kbuild-7.1-1' of git://git.kernel.org/pub/scm/linux/kernel/git/kbuild/linux
+a970ed1881 Merge tag 'bitmap-for-v7.1' of https://github.com/norov/linux
+
+== subsistemas alterados (arquivos tocados últimos 100 commits) ==
+     20 samples/lowlevel_pureasm
+      8 .github/workflows
+      7 android-native/app
+      7 Documentation/lowlevel
+      5 Documentation/process
+      4 drivers/net
+      4 drivers/iio
+      3 scripts/detect_platform_ids.sh
+      2 tools/net
+      2 scripts/asm-first-build.sh
+      2 docs/perf
+      2 android-native/README.md
+      1 scripts/validate_lowlevel_docs.sh
+      1 scripts/git-hooks
+      1 include/linux
+      1 android-native/settings.gradle.kts
+      1 android-native/gradle.properties
+      1 android-native/build.gradle.kts
+
+== presença de mudanças em áreas críticas (últimos 100 commits) ==
+NOT FOUND: arch/.*/kvm/
+
+NOT FOUND: ^kernel/sched/
+
+NOT FOUND: ^mm/
+
+NOT FOUND: ^kernel/trace/
+
+NOT FOUND: ^security/
+
+NOT FOUND: ^arch/arm/
+
+NOT FOUND: ^arch/arm64/
+
+== classificação sugerida ==
+Sem indício de alteração core relevante nos últimos 100 commits: classificar como fork de estudo/referência/não-core.
