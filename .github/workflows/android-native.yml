@@ -13,6 +13,7 @@ permissions:
 env:
   JAVA_VERSION: "17"
   NDK_VERSION: "26.3.11579264"
+  GRADLE_VERSION: "8.14.3"
 
 jobs:
   build-debug:
@@ -34,6 +35,11 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
@@ -42,8 +48,7 @@ jobs:
         with:
           path: |
             ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/settings.gradle*') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/settings.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
@@ -56,8 +61,13 @@ jobs:
       - name: Install NDK
         run: sdkmanager "ndk;${NDK_VERSION}"
 
+      - name: Beta source selftest
+        working-directory: android-native
+        run: gradle --no-daemon :app:betaSourceSelfTest
+
       - name: Build debug APK
-        run: ./gradlew --no-daemon clean assembleDebug -PabiFilter=${ABI}
+        working-directory: android-native
+        run: gradle --no-daemon clean :app:assembleDebug -PciAbi=${ABI}
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -87,6 +97,11 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
@@ -95,8 +110,7 @@ jobs:
         with:
           path: |
             ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/settings.gradle*') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/settings.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
@@ -109,8 +123,13 @@ jobs:
       - name: Install NDK
         run: sdkmanager "ndk;${NDK_VERSION}"
 
+      - name: Beta source selftest
+        working-directory: android-native
+        run: gradle --no-daemon :app:betaSourceSelfTest
+
       - name: Build unsigned release APK
-        run: ./gradlew --no-daemon clean assembleRelease -PabiFilter=${ABI}
+        working-directory: android-native
+        run: gradle --no-daemon clean :app:assembleRelease -PciAbi=${ABI}
 
       - name: Upload unsigned release APK
         uses: actions/upload-artifact@v4
@@ -136,6 +155,11 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
@@ -144,8 +168,7 @@ jobs:
         with:
           path: |
             ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/settings.gradle*') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/settings.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
 
@@ -167,21 +190,26 @@ jobs:
           test -n "$KEYSTORE_BASE64"
           echo "$KEYSTORE_BASE64" | base64 --decode > release.keystore
 
+      - name: Beta source selftest
+        working-directory: android-native
+        run: gradle --no-daemon :app:betaSourceSelfTest
+
       - name: Build signed release APK
+        working-directory: android-native
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
         run: |
-          ./gradlew --no-daemon clean assembleRelease \
-            -Pandroid.injected.signing.store.file=$PWD/release.keystore \
+          gradle --no-daemon clean :app:assembleRelease -PrequireReleaseSigning=true \
+            -Pandroid.injected.signing.store.file=$GITHUB_WORKSPACE/release.keystore \
             -Pandroid.injected.signing.store.password=$STORE_PASSWORD \
             -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
             -Pandroid.injected.signing.key.password=$KEY_PASSWORD
 
       - name: Verify signed APK exists
         run: |
-          test -n "$(find . -type f -path '*build/outputs/apk/release/*.apk' ! -name '*unsigned*' | head -n 1)"
+          test -n "$(find android-native -type f -path '*build/outputs/apk/release/*.apk' ! -name '*unsigned*' | head -n 1)"
 
       - name: Upload signed release APK
         uses: actions/upload-artifact@v4
